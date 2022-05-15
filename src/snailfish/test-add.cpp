@@ -14,11 +14,16 @@ int main(int argc, char* argv[])
             throw std::runtime_error("at least 3 numbers are expected");
         }
 
+        // add all numbers but the last
         Number result = nums.front();
         for(std::size_t i = 1; i < nums.size() - 1; ++i) {
             result = add(result, nums[i]);
         }
+
+        // read the last number which is the expected
         Number expected = nums.back();
+
+        // compare number in a silly way (by converting to strings)
         if(result.to_string() != expected.to_string()) {
             std::cerr << "failed to add"
                 << "\n\tactual  : " << result

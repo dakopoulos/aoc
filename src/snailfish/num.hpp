@@ -15,30 +15,41 @@ class Number
 {
 public:
     // constructors
+
+    /// Construct a regular number
     Number(Int value);
+
+    /// Construct with a pair of any other snailfish numbers
     Number(Number const& left, Number const& right);
+
     Number(Number const& n);
     Number& operator=(Number const& n);
 
-    // getters
     std::optional<Int> const& value() const { return value_; }
     std::unique_ptr<std::pair<Number, Number>> const& lr() const { return lr_; }
 
-    // arithmetics
     Number& operator+=(Number const& n);
     Number& operator+=(Int value);
     std::unique_ptr<std::pair<Number, Number>> explode();
+
+    /// Calculate the magnitude of the number
     Int magnitude() const;
 
-    // other
+    /// Check if the number is empty
     bool empty() const;
+
+    /// Convert to string
     std::string to_string() const;
+
+    /// Returns true if it's a pair of regular numbers
     bool is_pair() const;
+
+    /// Return true if it's a regular number
     bool is_regular() const;
 
 private:
-    std::optional<Int> value_;
-    std::unique_ptr<std::pair<Number, Number>> lr_ = nullptr;
+    std::optional<Int> value_; // regular
+    std::unique_ptr<std::pair<Number, Number>> lr_ = nullptr; // pair of numbers
 };
 
 std::ostream& operator<<(std::ostream& out, Number const& n);
