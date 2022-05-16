@@ -10,7 +10,8 @@ std::pair<Number, std::string::const_iterator> from_str(
 {
     std::optional<Number> left;
     std::optional<Number> right;
-    for(auto i = begin; i != end; ++i) {
+    auto i = begin;
+    for(i = begin; i != end; ++i) {
         if(*i == '[') {
             ++i;
             // digit
@@ -30,10 +31,14 @@ std::pair<Number, std::string::const_iterator> from_str(
             if(!left || !right) {
                 throw std::runtime_error("formatting error");
             }
-            Number out(*left, *right);
-            return {out, i};
+            break;
         }
     }
+    if(!left || !right) {
+        throw std::runtime_error("couldn't read number from string");
+    }
+    Number out(*left, *right);
+    return {out, i};
 }
 
 Number from_str(std::string const& s)

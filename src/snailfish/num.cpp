@@ -60,6 +60,7 @@ Number& Number::operator+=(Int value)
         value_ = 0;
     }
     *value_ += value;
+    return *this;
 }
 
 Number& Number::operator+=(Number const& n)
