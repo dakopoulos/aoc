@@ -1,3 +1,6 @@
+#ifndef AOC_SNAILFISH_READ_HPP
+#define AOC_SNAILFISH_READ_HPP
+
 #include <vector>
 #include "num.hpp"
 
@@ -19,3 +22,4 @@ std::vector<Number> from_file(std::string const& filename,
 
 } // ~ namespace aoc::snailfish
 
+#endif // ~ AOC_SNAILFISH_READ_HPP
