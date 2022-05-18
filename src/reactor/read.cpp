@@ -85,4 +85,18 @@ std::vector<Boot_step> read_boot_sequence(std::string const& filename)
     return out;
 }
 
+void apply_boot_sequence(Reactor& reactor, std::string const& filename)
+{
+    std::ifstream fp(filename.c_str());
+    while(fp.good()) {
+        std::string line;
+        getline(fp, line);
+        auto boot_step = read_boot_step(line);
+        if(boot_step) {
+            reactor.apply(*boot_step);
+        }
+    }
+    fp.close();
+}
+
 } // ~ namespace aoc::reactor
