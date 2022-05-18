@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     if(argc == 2) {
         auto const filename = boost::lexical_cast<std::string>(argv[1]);
         auto const nums = aoc::snailfish::from_file(filename);
-        if(nums.size() < 3 != 0) {
+        if(nums.size() < 3) {
             throw std::runtime_error("at least 3 numbers are expected");
         }
 

@@ -50,7 +50,7 @@ Boot_step read_boot_step(std::string const& s)
     std::optional<Range> range_x;
     std::optional<Range> range_y;
     std::optional<Range> range_z;
-    for(auto i = 1; i != tokens.size(); ++i) {
+    for(auto i = std::size_t(1); i != tokens.size(); ++i) {
         if(boost::starts_with(tokens[i], "x")) {
             range_x = read_range(tokens[i]);
         } else if(boost::starts_with(tokens[i], "y")) {
