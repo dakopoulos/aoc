@@ -8,7 +8,10 @@ namespace aoc::reactor {
 
 std::vector<Boot_step> read_boot_sequence(std::string const& filename);
 
-void apply_boot_sequence(Reactor& reactor, std::string const& filename);
+void apply_boot_sequence(
+    Reactor& reactor,
+    std::string const& filename,
+    Reactor::Mode const& mode);
 
 } // ~ namespace aoc::reactor
 

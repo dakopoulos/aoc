@@ -13,9 +13,9 @@ namespace aoc::reactor {
 ///
 struct Boot_step
 {
-    Boot_step(Range3 const& range_, bool status_)
-        : range(range_), status(status_) {}
-    Range3 range;
+    Boot_step(Range3 const& cores_, bool status_)
+        : cores(cores_), status(status_) {}
+    Range3 cores;
     bool status;
 };
 
@@ -25,16 +25,20 @@ struct Boot_step
 class Reactor
 {
 public:
-    Reactor(Range3 const& range);
+    enum class Mode { INIT, BOOT };
+
+    Reactor(Range3 const& init_cores);
     std::size_t active_cores() const;
-    void apply(Boot_step const& step);
+    void apply(Boot_step const& step, Mode const& mode);
 
 private:
-    Range3 const range_;
-    std::unordered_set<int> active_cores_;
+    Range3 const init_cores_;
+    std::unordered_set<Point, Point_hash> active_cores_;
 
 private:
-    std::size_t point_to_core_index(int x, int y, int z) const;
+    void apply_helper(Range3 const& cores, bool status);
+    void turn_on(Range3 const& cores);
+    void turn_off(Range3 const& cores);
 };
 
 std::ostream& operator<<(std::ostream& o, Boot_step const& s);

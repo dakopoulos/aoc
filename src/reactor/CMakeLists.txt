@@ -4,18 +4,10 @@ add_library(reactor
     read.cpp
 )
 
-# executable for testing reduction
-add_executable(load-and-reboot
-    load-and-reboot.cpp
-)
-target_link_libraries(load-and-reboot
-    reactor
-)
-
 # executable for testing reduction (on-the-fly)
-add_executable(reboot-on-the-fly
-    reboot-on-the-fly.cpp
+add_executable(init-and-reboot
+    init-and-reboot.cpp
 )
-target_link_libraries(reboot-on-the-fly
+target_link_libraries(init-and-reboot
     reactor
 )

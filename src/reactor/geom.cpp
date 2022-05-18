@@ -19,12 +19,21 @@ std::optional<Range3> Range3::overlap_with(Range3 const& r) const
 {
     std::optional<Range3> out;
     auto x_overlap = x.overlap_with(r.x);
-    auto y_overlap = y.overlap_with(r.y);
-    auto z_overlap = z.overlap_with(r.z);
-    if(x_overlap && y_overlap && z_overlap) {
-        out = Range3(*x_overlap, *y_overlap, *z_overlap);
+    if(x_overlap) {
+        auto y_overlap = y.overlap_with(r.y);
+        if(y_overlap) {
+            auto z_overlap = z.overlap_with(r.z);
+            if(z_overlap) {
+                out = Range3(*x_overlap, *y_overlap, *z_overlap);
+            }
+        }
     }
     return out;
+}
+    
+bool Range3::contains(Point const& p) const
+{
+    return x.contains(p.x) && y.contains(p.y) && z.contains(p.z);
 }
 
 std::ostream& operator<<(std::ostream& o, Range const& r)

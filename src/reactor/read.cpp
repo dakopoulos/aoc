@@ -23,53 +23,59 @@ Range read_range(std::string const& s)
         boost::lexical_cast<int>(toks[2]));
 }
 
-Boot_step read_boot_step(std::string const& s)
+std::optional<Boot_step> read_boot_step(std::string const& s)
 {
     std::vector<std::string> tokens;
+    std::optional<Boot_step> out;
 
-    try {
-    
-    boost::split(tokens, s, boost::is_any_of("\t, "), boost::token_compress_on);
+    if(!s.empty()) {
+        try {
+        
+        boost::split(tokens, s, boost::is_any_of("\t, "), boost::token_compress_on);
+        if(!tokens.empty()) {
+            if(tokens.size() != 4) {
+                throw std::runtime_error("");
+            }
 
-    if(tokens.size() != 4) {
-        throw std::runtime_error("");
-    }
+            // lower case (just for safefy...) 
+            for(auto& i: tokens) {
+                boost::to_lower(i);
+            }
+            
+            // status
+            bool status = false;
+            if(tokens[0] == "on") {
+                status = true;
+            }
 
-    // lower case (just for safefy...) 
-    for(auto& i: tokens) {
-        boost::to_lower(i);
-    }
-    
-    // status
-    bool status = false;
-    if(tokens[0] == "on") {
-        status = true;
-    }
+            // ranges
+            std::optional<Range> range_x;
+            std::optional<Range> range_y;
+            std::optional<Range> range_z;
+            for(auto i = std::size_t(1); i != tokens.size(); ++i) {
+                if(boost::starts_with(tokens[i], "x")) {
+                    range_x = read_range(tokens[i]);
+                } else if(boost::starts_with(tokens[i], "y")) {
+                    range_y = read_range(tokens[i]);
+                } else if(boost::starts_with(tokens[i], "z")) {
+                    range_z = read_range(tokens[i]);
+                }
+            }
+            if(!range_x || !range_y || !range_z) {
+                std::runtime_error("");
+            }
 
-    // ranges
-    std::optional<Range> range_x;
-    std::optional<Range> range_y;
-    std::optional<Range> range_z;
-    for(auto i = std::size_t(1); i != tokens.size(); ++i) {
-        if(boost::starts_with(tokens[i], "x")) {
-            range_x = read_range(tokens[i]);
-        } else if(boost::starts_with(tokens[i], "y")) {
-            range_y = read_range(tokens[i]);
-        } else if(boost::starts_with(tokens[i], "z")) {
-            range_z = read_range(tokens[i]);
+            out = Boot_step({*range_x, *range_y, *range_z}, status);
+        }
+        
+        } catch(...) { // catch all errors...
+            std::stringstream msg;
+            msg << "string \"" << s << "\" has incorrect format";
+            throw std::runtime_error(msg.str());
         }
     }
-    if(!range_x || !range_y || !range_z) {
-        std::runtime_error("");
-    }
 
-    return Boot_step({*range_x, *range_y, *range_z}, status);
-    
-    } catch(...) { // catch all errors...
-        std::stringstream msg;
-        msg << "string \"" << s << "\" has incorrect format";
-        throw std::runtime_error(msg.str());
-    }
+    return out;
 }
 
 std::vector<Boot_step> read_boot_sequence(std::string const& filename)
@@ -79,13 +85,19 @@ std::vector<Boot_step> read_boot_sequence(std::string const& filename)
     while(fp.good()) {
         std::string line;
         getline(fp, line);
-        out.emplace_back(read_boot_step(line));
+        auto boot_step = read_boot_step(line);
+        if(boot_step) {
+            out.emplace_back(*boot_step);
+        }
     }
     fp.close();
     return out;
 }
 
-void apply_boot_sequence(Reactor& reactor, std::string const& filename)
+void apply_boot_sequence(
+    Reactor& reactor,
+    std::string const& filename,
+    Reactor::Mode const& mode)
 {
     std::ifstream fp(filename.c_str());
     while(fp.good()) {
@@ -93,7 +105,7 @@ void apply_boot_sequence(Reactor& reactor, std::string const& filename)
         getline(fp, line);
         auto boot_step = read_boot_step(line);
         if(boot_step) {
-            reactor.apply(*boot_step);
+            reactor.apply(*boot_step, mode);
         }
     }
     fp.close();
