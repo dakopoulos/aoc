@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     if(argc == 3) {
         std::cout << "read & apply boot sequence..." << std::endl;
         apply_boot_sequence(reactor,
-            boost::lexical_cast<std::string>(argv[1]),
+            boost::lexical_cast<std::string>(argv[2]),
             Reactor::Mode::BOOT);
         std::cout << "...done" << std::endl;
     }
