@@ -10,6 +10,7 @@ Reactor::Reactor(Range3 const& init_cores)
     
 void Reactor::apply(Boot_step const& step, Mode const& mode)
 {
+    std::cout << "\tapplying boot/init step...\n";
     if(mode == Mode::BOOT) {
         // during boot phase, any core can be utilized (in theory infinite)
         apply_helper(step.cores, step.status);
