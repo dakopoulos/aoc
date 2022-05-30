@@ -26,3 +26,22 @@ Two executables are produced to test and solve the snailfish problem.
   * Tests calculations of a snailfish's number magnitude
   * Usage: `test-magn <filename>` where `<filename>` containts snailfish
     number and expected magnitudes (each on separate lines)
+
+## Day 22
+
+`reactor` initialization and boot sequence.
+
+Executable is produced with the following usage:
+
+`init-and-reboot <init-sequence-file> [<boot-sequence-file>]`
+
+Data are in `[path]/data/reactor*` e.g. `reactor-puzzle-init.txt` and
+`reactor-puzzle-boot.txt`.
+
+**Rationale**:
+
+* Reactor stores all the active cores in an `unordered_set<Point>` with
+  a custom hash function and `Point` being a 3D point with int coordinates.
+* Upon applying a boot or init step, cores are enabled if not already in
+  the active cores set or removed from the active cores if already there.
+
