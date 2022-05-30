@@ -27,9 +27,9 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
 void Reactor::turn_on(Range3 const& cores)
 {
     // iterate through all incoming cores
-    for(int x = cores.x.lo; x <= cores.x.hi; ++x) {
-        for(int y = cores.y.lo; y <= cores.y.hi; ++y) {
-            for(int z = cores.z.lo; z <= cores.z.hi; ++z) {
+    for(Coord x = cores.x.lo; x <= cores.x.hi; ++x) {
+        for(Coord y = cores.y.lo; y <= cores.y.hi; ++y) {
+            for(Coord z = cores.z.lo; z <= cores.z.hi; ++z) {
                 Point p(x, y, z);
                 // activate if not active
                 if(active_cores_.find(p) == active_cores_.end()) {

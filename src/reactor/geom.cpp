@@ -5,8 +5,8 @@ namespace aoc::reactor {
     
 std::optional<Range> Range::overlap_with(Range const& r) const
 {
-    int out_lo = std::max(lo, r.lo);
-    int out_hi = std::min(hi, r.hi);
+    Coord out_lo = std::max(lo, r.lo);
+    Coord out_hi = std::min(hi, r.hi);
 
     std::optional<Range> out;
     if(out_lo <= out_hi) {

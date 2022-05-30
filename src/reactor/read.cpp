@@ -19,8 +19,8 @@ Range read_range(std::string const& s)
     if(toks.size() != 3) {
         throw std::runtime_error("");
     }
-    return Range(boost::lexical_cast<int>(toks[1]),
-        boost::lexical_cast<int>(toks[2]));
+    return Range(boost::lexical_cast<Coord>(toks[1]),
+        boost::lexical_cast<Coord>(toks[2]));
 }
 
 std::optional<Boot_step> read_boot_step(std::string const& s)

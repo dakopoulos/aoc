@@ -5,17 +5,19 @@
 #include <optional>
 #include <boost/functional/hash.hpp>
 
+#include "common.hpp"
+
 namespace aoc::reactor {
 
 /// 3D point
 ///
 struct Point
 {
-    Point(int x_, int y_, int z_) : x(x_), y(y_), z(z_) {}
+    Point(Coord x_, Coord y_, Coord z_) : x(x_), y(y_), z(z_) {}
     bool operator==(Point const&) const = default;
-    int x{0};
-    int y{0};
-    int z{0};
+    Coord x{0};
+    Coord y{0};
+    Coord z{0};
 };
 
 
@@ -38,19 +40,19 @@ struct Point_hash
 ///
 struct Range
 {
-    Range(int lo_, int hi_) : lo(lo_), hi(hi_)
+    Range(Coord lo_, Coord hi_) : lo(lo_), hi(hi_)
     {
         if(lo_ > hi_) {
             throw std::runtime_error("range's lo must be <= range's hi");
         }
     }
 
-    int size() const { return hi - lo + 1; }
+    Coord size() const { return hi - lo + 1; }
     std::optional<Range> overlap_with(Range const& r) const;
-    bool contains(int i) const { return i >= lo && i <= hi; }
+    bool contains(Coord i) const { return i >= lo && i <= hi; }
 
-    int lo{0};
-    int hi{0};
+    Coord lo{0};
+    Coord hi{0};
 };
 
 std::ostream& operator<<(std::ostream& o, Range const& r);

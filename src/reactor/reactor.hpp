@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "common.hpp"
 #include "geom.hpp"
 
 namespace aoc::reactor {
