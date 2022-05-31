@@ -5,8 +5,8 @@ namespace aoc::reactor {
     
 std::optional<Range> Range::overlap_with(Range const& r) const
 {
-    Coord out_lo = std::max(lo, r.lo);
-    Coord out_hi = std::min(hi, r.hi);
+    Coord out_lo = std::max(lo_, r.lo());
+    Coord out_hi = std::min(hi_, r.hi());
 
     std::optional<Range> out;
     if(out_lo <= out_hi) {
@@ -38,7 +38,7 @@ bool Range3::contains(Point const& p) const
 
 std::ostream& operator<<(std::ostream& o, Range const& r)
 {
-    o << "range(" << r.lo << ", " << r.hi << ")";
+    o << "range(" << r.lo() << ", " << r.hi() << ")";
     return o;
 }
 

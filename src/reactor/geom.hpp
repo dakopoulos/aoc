@@ -38,21 +38,25 @@ struct Point_hash
 
 /// 1D range of integers
 ///
-struct Range
+class Range
 {
-    Range(Coord lo_, Coord hi_) : lo(lo_), hi(hi_)
+public:
+    Range(Coord lo, Coord hi) : lo_(lo), hi_(hi)
     {
-        if(lo_ > hi_) {
+        if(lo > hi) {
             throw std::runtime_error("range's lo must be <= range's hi");
         }
     }
 
-    Coord size() const { return hi - lo + 1; }
+    Coord size() const { return hi_ - lo_ + 1; }
     std::optional<Range> overlap_with(Range const& r) const;
-    bool contains(Coord i) const { return i >= lo && i <= hi; }
+    bool contains(Coord i) const { return i >= lo_ && i <= hi_; }
+    Coord lo() const noexcept { return lo_; }
+    Coord hi() const noexcept { return hi_; }
 
-    Coord lo{0};
-    Coord hi{0};
+private:
+    Coord lo_{0};
+    Coord hi_{0};
 };
 
 std::ostream& operator<<(std::ostream& o, Range const& r);
