@@ -14,6 +14,11 @@ std::optional<Range> Range::overlap_with(Range const& r) const
     }
     return out;
 }
+
+bool Range::contains(Range const& r) const
+{
+    return lo_ <= r.lo() && hi_ >= r.hi();
+}
     
 std::optional<Range3> Range3::overlap_with(Range3 const& r) const
 {
@@ -34,6 +39,11 @@ std::optional<Range3> Range3::overlap_with(Range3 const& r) const
 bool Range3::contains(Point const& p) const
 {
     return x.contains(p.x) && y.contains(p.y) && z.contains(p.z);
+}
+    
+bool Range3::contains(Range3 const& r) const
+{
+    return x.contains(r.x) && y.contains(r.y) && z.contains(r.z);
 }
 
 std::ostream& operator<<(std::ostream& o, Range const& r)
