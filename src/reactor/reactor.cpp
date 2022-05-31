@@ -26,27 +26,64 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
 
 void Reactor::turn_on(Range3 const& cores)
 {
-    // iterate through all incoming cores
-    for(Coord x = cores.x.lo(); x <= cores.x.hi(); ++x) {
-        for(Coord y = cores.y.lo(); y <= cores.y.hi(); ++y) {
-            for(Coord z = cores.z.lo(); z <= cores.z.hi(); ++z) {
-                Point p(x, y, z);
-                // activate if not active
-                if(active_cores_.find(p) == active_cores_.end()) {
-                    active_cores_.insert(p);
-                }
+    bool no_overlaps{true};
+    for(auto i = active_cores_.begin(); i != active_cores_.end();) {
+        auto overlap = i->overlap_with(cores);
+        if(overlap) {
+            no_overlaps = false;
+
+            // split active cores
+            auto split_i = i->split(cores);
+            active_cores_.insert(active_cores_.end(), split_i.begin(),
+                split_i.end());
+
+            // split input cores
+            auto split_cores = cores.split(*i);
+            
+            // remove old active cores
+            i = active_cores_.erase(i);
+            // run again for each split core
+            for(auto const& j: split_cores) {
+                turn_on(j);
             }
+        } else {
+            ++i;
         }
+    }
+
+    // if there are no overlaps with any of the cores, activate!
+    if(no_overlaps == true) {
+        active_cores_.emplace_back(cores.x, cores.y, cores.z);
     }
 }
 
 void Reactor::turn_off(Range3 const& cores)
 {
     for(auto i = active_cores_.begin(); i != active_cores_.end();) {
-        if(cores.contains(*i)) {
+        // de-activate / erase 
+        if(*i == cores) {
             i = active_cores_.erase(i);
         } else {
-            ++i;
+            auto overlap = i->overlap_with(cores);
+            if(overlap) {
+                // split active cores
+                auto split_i = i->split(cores);
+                active_cores_.insert(active_cores_.end(), split_i.begin(),
+                    split_i.end());
+
+                // split input cores
+                auto split_cores = cores.split(*i);
+                
+                // remove old active cores
+                i = active_cores_.erase(i);
+                
+                // run again for each split core
+                for(auto const& j: split_cores) {
+                    turn_off(j);
+                }
+            } else {
+                ++i;
+            }
         }
     }
 }

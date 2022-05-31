@@ -20,6 +20,27 @@ bool Range::contains(Range const& r) const
     return lo_ <= r.lo() && hi_ >= r.hi();
 }
     
+std::vector<Range> Range::split(Range const& r) const
+{
+    std::vector<Coord> points = {lo_};
+    if(r.lo() > lo_ && r.lo() < hi_ && r.lo() != points.back()) {
+        points.emplace_back(r.lo());
+    }
+    if(r.hi() > lo_ && r.hi() < hi_ && r.hi() != points.back()) {
+        points.emplace_back(r.hi());
+    }
+    if(hi_ != points.back()) {
+        points.emplace_back(hi_);
+    }
+
+    std::vector<Range> out;
+    for(std::size_t i = 0; i < points.size() - 1; ++i) {
+        auto end = i + 2 != points.size() ? points[i + 1] - 1 : points[i + 1];
+        out.emplace_back(points[i], end);
+    }
+    return out;
+}
+    
 std::optional<Range3> Range3::overlap_with(Range3 const& r) const
 {
     std::optional<Range3> out;
@@ -44,6 +65,23 @@ bool Range3::contains(Point const& p) const
 bool Range3::contains(Range3 const& r) const
 {
     return x.contains(r.x) && y.contains(r.y) && z.contains(r.z);
+}
+    
+std::vector<Range3> Range3::split(Range3 const& r) const
+{
+    auto x_split = x.split(r.x);
+    auto y_split = y.split(r.y);
+    auto z_split = z.split(r.z);
+
+    std::vector<Range3> out;
+    for(auto const& i: x_split) {
+        for(auto const& j: y_split) {
+            for(auto const& k: z_split) {
+                out.emplace_back(i, j, k);
+            }
+        }
+    }
+    return out;
 }
 
 std::ostream& operator<<(std::ostream& o, Range const& r)

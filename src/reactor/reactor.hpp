@@ -1,7 +1,7 @@
 #ifndef AOC_REACTOR_REACTOR_HPP
 #define AOC_REACTOR_REACTOR_HPP
 
-#include <vector>
+#include <list>
 #include <iostream>
 #include <unordered_set>
 
@@ -34,7 +34,7 @@ public:
 
 private:
     Range3 const init_cores_;
-    std::unordered_set<Point, Point_hash> active_cores_;
+    std::list<Range3> active_cores_;
 
 private:
     void apply_helper(Range3 const& cores, bool status);
