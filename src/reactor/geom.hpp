@@ -48,6 +48,7 @@ public:
         }
     }
 
+    bool operator==(Range const&) const = default;
     Coord size() const { return hi_ - lo_ + 1; }
     std::optional<Range> overlap_with(Range const& r) const;
     bool contains(Coord i) const { return i >= lo_ && i <= hi_; }
@@ -67,6 +68,7 @@ struct Range3
 {
     Range3(Range const& x_, Range const& y_, Range const& z_)
         : x(x_), y(y_), z(z_) {}
+    bool operator==(Range3 const&) const = default;
     std::size_t size() const { return x.size() * y.size() * z.size(); }
     std::optional<Range3> overlap_with(Range3 const& r) const;
     bool contains(Point const& p) const;
