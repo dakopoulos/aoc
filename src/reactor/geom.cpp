@@ -29,7 +29,7 @@ std::vector<Range> Range::split(Range const& r) const
     if(r.hi() > lo_ && r.hi() < hi_ && r.hi() != points.back()) {
         points.emplace_back(r.hi());
     }
-    if(hi_ != points.back()) {
+    if(points.size() == 1 || hi_ != points.back()) {
         points.emplace_back(hi_);
     }
 

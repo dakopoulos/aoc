@@ -38,8 +38,6 @@ private:
 
 private:
     void apply_helper(Range3 const& cores, bool status);
-    void turn_on(Range3 const& cores);
-    void turn_off(Range3 const& cores);
 };
 
 std::ostream& operator<<(std::ostream& o, Boot_step const& s);

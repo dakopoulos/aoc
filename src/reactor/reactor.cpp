@@ -24,65 +24,81 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
     }
 }
 
-void Reactor::turn_on(Range3 const& cores)
+static
+void turn_on(
+    Range3 const& cores,
+    std::list<Range3>& active_cores,
+    std::list<Range3>::iterator start,
+    std::vector<Range3>& to_activate,
+    std::vector<std::list<Range3>::iterator>& to_deactivate)
 {
     bool no_overlaps{true};
-    for(auto i = active_cores_.begin(); i != active_cores_.end();) {
-        auto overlap = i->overlap_with(cores);
+    for(auto i = start; i != active_cores.end(); ++i) {
+        auto const& ac = *i;
+        auto overlap = ac.overlap_with(cores);
         if(overlap) {
             no_overlaps = false;
 
             // split active cores
-            auto split_i = i->split(cores);
-            active_cores_.insert(active_cores_.end(), split_i.begin(),
+            auto split_i = ac.split(cores);
+            active_cores.insert(active_cores.end(), split_i.begin(),
                 split_i.end());
-
-            // split input cores
-            auto split_cores = cores.split(*i);
             
             // remove old active cores
-            i = active_cores_.erase(i);
+            to_deactivate.push_back(i);
+
+            // split input cores
+            auto split_cores = cores.split(ac);
+            
             // run again for each split core
+            start = i;
+            ++start;
             for(auto const& j: split_cores) {
-                turn_on(j);
+                turn_on(j, active_cores, start, to_activate, to_deactivate);
             }
-        } else {
-            ++i;
         }
     }
 
     // if there are no overlaps with any of the cores, activate!
     if(no_overlaps == true) {
-        active_cores_.emplace_back(cores.x, cores.y, cores.z);
+        to_activate.emplace_back(cores.x, cores.y, cores.z);
+        // active_cores.emplace_back(cores.x, cores.y, cores.z);
     }
 }
 
-void Reactor::turn_off(Range3 const& cores)
+static
+void turn_off(
+    Range3 const& cores,
+    std::list<Range3>& active_cores,
+    std::list<Range3>::iterator start,
+    std::vector<std::list<Range3>::iterator>& to_deactivate)
 {
-    for(auto i = active_cores_.begin(); i != active_cores_.end();) {
+    for(auto i = start; i != active_cores.end(); ++i) {
+        auto const& ac = *i;
+
         // de-activate / erase 
-        if(*i == cores) {
-            i = active_cores_.erase(i);
+        if(ac == cores) {
+            to_deactivate.push_back(i);
         } else {
-            auto overlap = i->overlap_with(cores);
+            auto overlap = ac.overlap_with(cores);
             if(overlap) {
                 // split active cores
-                auto split_i = i->split(cores);
-                active_cores_.insert(active_cores_.end(), split_i.begin(),
+                auto split_i = ac.split(cores);
+                active_cores.insert(active_cores.end(), split_i.begin(),
                     split_i.end());
 
+                // mark active core to remove
+                to_deactivate.push_back(i);
+
                 // split input cores
-                auto split_cores = cores.split(*i);
-                
-                // remove old active cores
-                i = active_cores_.erase(i);
+                auto split_cores = cores.split(ac);
                 
                 // run again for each split core
+                start = i;
+                ++start;
                 for(auto const& j: split_cores) {
-                    turn_off(j);
+                    turn_off(j, active_cores, ++start, to_deactivate);
                 }
-            } else {
-                ++i;
             }
         }
     }
@@ -90,10 +106,19 @@ void Reactor::turn_off(Range3 const& cores)
 
 void Reactor::apply_helper(Range3 const& cores, bool status)
 {
+    std::vector<Range3> to_activate;
+    std::vector<std::list<Range3>::iterator> to_deactivate;
     if(status) {
-        turn_on(cores);
+        turn_on(cores, active_cores_, active_cores_.begin(), to_activate, to_deactivate);
     } else {
-        turn_off(cores);
+        turn_off(cores, active_cores_, active_cores_.begin(), to_deactivate);
+    }
+
+    for(auto const& i: to_deactivate) {
+        active_cores_.erase(i);
+    }
+    for(auto const& i: to_activate) {
+        active_cores_.push_back(i);
     }
 }
 
