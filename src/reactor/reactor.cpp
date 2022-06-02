@@ -40,7 +40,7 @@ void turn_on(
             no_overlaps = false;
 
             // split active cores
-            auto split_i = ac.split(cores);
+            auto split_i = ac.split(cores, false);
             active_cores.insert(active_cores.end(), split_i.begin(),
                 split_i.end());
             
@@ -48,7 +48,7 @@ void turn_on(
             to_deactivate.push_back(i);
 
             // split input cores
-            auto split_cores = cores.split(ac);
+            auto split_cores = cores.split(ac, true);
             
             // run again for each split core
             start = i;

@@ -55,7 +55,7 @@ public:
     bool contains(Coord i) const { return i >= lo_ && i <= hi_; }
     Coord lo() const noexcept { return lo_; }
     Coord hi() const noexcept { return hi_; }
-    std::vector<Range> split(Range const&) const;
+    std::vector<Range> split(Range const&, bool reverse = false) const;
 
 private:
     Coord lo_{0};
@@ -75,7 +75,7 @@ struct Range3
     std::optional<Range3> overlap_with(Range3 const& r) const;
     bool contains(Range3 const&) const;
     bool contains(Point const& p) const;
-    std::vector<Range3> split(Range3 const&) const;
+    std::vector<Range3> split(Range3 const&, bool reverse = false) const;
     
     Range x;
     Range y;
