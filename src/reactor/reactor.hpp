@@ -30,6 +30,7 @@ public:
 
     Reactor(Range3 const& init_cores);
     std::size_t active_cores() const;
+    std::size_t active_core_groups() const noexcept { return active_cores_.size(); }
     void apply(Boot_step const& step, Mode const& mode);
 
 private:

@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
 
     // print
     std::cout << "total active cores: " << reactor.active_cores() << std::endl;
+    std::cout << "total active groups of cores: " << reactor.active_core_groups() << std::endl;
 
     return 0;
 }
