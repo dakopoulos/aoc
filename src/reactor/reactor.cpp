@@ -80,9 +80,56 @@ void turn_on(
 
 static
 void turn_off(
-    std::list<Range3> const&,
-    std::list<Range3>& )
+    std::list<Range3>& input_cores,
+    std::list<Range3>& active_cores)
 {
+    return;
+    bool split{true};
+
+    while(split == true) {
+        // reset
+        split = false;
+    
+        // for every (active_core, input_core) pair
+        for(auto ac = active_cores.begin(); ac != active_cores.end();) {
+            bool erased_active_core{false};
+            for(auto ic = input_cores.begin(); ic != input_cores.end();) {
+                // find their overlap
+                auto ac_ic_overlap = ac->overlap_with(*ic);
+                if(ac_ic_overlap) {
+
+                    // if they full overlap remove input core and active_core
+                    if(ac_ic_overlap == *ic) {
+                        ic = input_cores.erase(ic);
+                        ac = active_cores.erase(ac);
+                        erased_active_core = true;
+                        continue;
+                    }
+
+                    // if they overlap partially, split both active core & input
+                    // cores, add to the pool and continue testing pairs
+                    auto split_ac = ac->split(*ic, false);
+                    active_cores.insert(active_cores.end(), split_ac.begin(), split_ac.end());
+
+                    auto split_ic = ic->split(*ac, true);
+                    input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
+
+                    // erase old cores that are now split and reset iterators
+                    // to restart loops 
+                    active_cores.erase(ac);
+                    ac = active_cores.end();
+                    input_cores.erase(ic);
+                    ic = input_cores.end();
+
+                    split = true;
+                }
+                ++ic;
+            }
+            if(erased_active_core == false) {
+                ++ac;
+            }
+        }
+    }
 }
 
 void Reactor::apply_helper(Range3 const& cores, bool status)
