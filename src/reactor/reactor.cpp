@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include "reactor.hpp"
 
 namespace aoc::reactor {
@@ -10,7 +11,7 @@ Reactor::Reactor(Range3 const& init_cores)
     
 void Reactor::apply(Boot_step const& step, Mode const& mode)
 {
-    std::cout << "\tapplying boot/init step...\n";
+    std::cout << "\tapplying boot/init step: " << step << "...\n";
     if(mode == Mode::BOOT) {
         // during boot phase, any core can be utilized (in theory infinite)
         apply_helper(step.cores, step.status);
@@ -22,47 +23,82 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
             apply_helper(*overlap, step.status);
         }
     }
+    std::cout << "\tactive cores: " << active_cores() << std::endl;
 }
 
-void Reactor::turn_on(Range3 const& cores)
+void Reactor::apply_helper(
+    std::list<Range3>& input_cores,
+    bool status)
 {
-    // iterate through all incoming cores
-    for(Coord x = cores.x.lo; x <= cores.x.hi; ++x) {
-        for(Coord y = cores.y.lo; y <= cores.y.hi; ++y) {
-            for(Coord z = cores.z.lo; z <= cores.z.hi; ++z) {
-                Point p(x, y, z);
-                // activate if not active
-                if(active_cores_.find(p) == active_cores_.end()) {
-                    active_cores_.insert(p);
+    bool split{true};
+
+    while(split == true) {
+        // reset
+        split = false;
+    
+        // for every (active_core, input_core) pair
+        for(auto ac = active_cores_.begin(); ac != active_cores_.end(); ++ac) {
+            for(auto ic = input_cores.begin(); ic != input_cores.end();) {
+                // find their overlap
+                auto ac_ic_overlap = ac->overlap_with(*ic);
+                if(ac_ic_overlap) {
+                    // turning on and full overlap --> remove input core
+                    if(status && ac->contains(*ic)) {
+                        ic = input_cores.erase(ic);
+                    // turning off and exact overlap --> remove input core and active_core
+                    } else if(!status && ic->contains(*ac)) {
+                        ac = active_cores_.erase(ac);
+                    // partial overlap --> split and continue
+                    } else {
+                        // split both active core & input cores
+                        // add to the pool and continue testing pairs
+                        auto split_ac = ac->split(*ic);
+                        active_cores_.insert(active_cores_.end(), split_ac.begin(), split_ac.end());
+
+                        auto split_ic = ic->split(*ac);
+                        input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
+
+                        // erase old cores that are now split and reset iterators
+                        // to restart loops 
+                        active_cores_.erase(ac);
+                        input_cores.erase(ic);
+                        split = true;
+                    }
+                } else {
+                    ++ic;
                 }
+                if(split == true) {
+                    break;
+                }
+            }
+            if(split == true) {
+                break;
             }
         }
     }
-}
 
-void Reactor::turn_off(Range3 const& cores)
-{
-    for(auto i = active_cores_.begin(); i != active_cores_.end();) {
-        if(cores.contains(*i)) {
-            i = active_cores_.erase(i);
-        } else {
-            ++i;
+    // add input cores that are not erased (i.e. overlapping after all the
+    // splitting)
+    if(status) {
+        for(auto const& ic: input_cores) {
+            active_cores_.push_back(ic);
         }
     }
 }
 
 void Reactor::apply_helper(Range3 const& cores, bool status)
 {
-    if(status) {
-        turn_on(cores);
-    } else {
-        turn_off(cores);
-    }
+    std::list<Range3> input_cores{cores};
+    apply_helper(input_cores, status);
 }
 
 std::size_t Reactor::active_cores() const
 {
-    return active_cores_.size();
+    std::size_t total{0};
+    for(auto const& i: active_cores_) {
+        total += i.size();
+    }
+    return total;
 }
     
 std::ostream& operator<<(std::ostream& o, Boot_step const& s)

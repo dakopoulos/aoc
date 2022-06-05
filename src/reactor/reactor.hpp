@@ -1,7 +1,7 @@
 #ifndef AOC_REACTOR_REACTOR_HPP
 #define AOC_REACTOR_REACTOR_HPP
 
-#include <vector>
+#include <list>
 #include <iostream>
 #include <unordered_set>
 
@@ -30,16 +30,16 @@ public:
 
     Reactor(Range3 const& init_cores);
     std::size_t active_cores() const;
+    std::size_t active_core_groups() const noexcept { return active_cores_.size(); }
     void apply(Boot_step const& step, Mode const& mode);
 
 private:
     Range3 const init_cores_;
-    std::unordered_set<Point, Point_hash> active_cores_;
+    std::list<Range3> active_cores_;
 
 private:
     void apply_helper(Range3 const& cores, bool status);
-    void turn_on(Range3 const& cores);
-    void turn_off(Range3 const& cores);
+    void apply_helper(std::list<Range3>& input_cores, bool status);
 };
 
 std::ostream& operator<<(std::ostream& o, Boot_step const& s);
