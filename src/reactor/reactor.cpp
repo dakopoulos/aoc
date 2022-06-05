@@ -101,7 +101,6 @@ void turn_off(
     std::list<Range3>& input_cores,
     std::list<Range3>& active_cores)
 {
-    return;
     bool split{true};
 
     while(split == true) {
