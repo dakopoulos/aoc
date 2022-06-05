@@ -1,4 +1,6 @@
 #include <iostream>
+#include <boost/icl/interval_set.hpp>
+#include <boost/icl/discrete_interval.hpp>
 #include "geom.hpp"
 
 namespace aoc::reactor {
@@ -22,25 +24,35 @@ bool Range::contains(Range const& r) const
     
 std::list<Range> Range::split(Range const& r) const
 {
-    auto& a = *this;
-    auto const& b = r;
+    using Interval_set = boost::icl::interval_set<int>;
+    using Interval = boost::icl::discrete_interval<int>;
 
-    std::vector<Coord> points = {a.lo_};
-    if(b.lo() > a.lo() && b.lo() < a.hi_ && b.lo() != points.back()) {
-        points.emplace_back(b.lo());
-    }
-    if(b.hi() > a.lo() && b.hi() < a.hi() && b.hi() != points.back()) {
-        points.emplace_back(b.hi());
-    }
-    if(points.size() == 1 || a.hi() != points.back()) {
-        points.emplace_back(a.hi());
-    }
+    auto make_set = [](auto l, auto h) {
+        Interval_set s;
+        s.insert(Interval(l, h, boost::icl::interval_bounds::closed()));
+        return s;
+    };
 
+    auto const s1 = make_set(lo_, hi_);
+    auto const s2 = make_set(r.lo(), r.hi());
+    
     std::list<Range> out;
-    for(std::size_t i = 0; i < points.size() - 1; ++i) {
-        auto end = i + 2 != points.size() ? points[i + 1] - 1 : points[i + 1];
-        out.emplace_back(points[i], end);
-    }
+    auto add_set = [&out](auto const& s) {
+        for(auto const& i: s) {
+            if(i.bounds() == boost::icl::interval_bounds::closed()) {
+                out.emplace_back(i.lower(), i.upper());
+            } else if(i.bounds() == boost::icl::interval_bounds::open()) {
+                out.emplace_back(i.lower() + 1, i.upper() - 1);
+            } else if(i.bounds() == boost::icl::interval_bounds::right_open()) {
+                out.emplace_back(i.lower(), i.upper() - 1);
+            } else if(i.bounds() == boost::icl::interval_bounds::left_open()) {
+                out.emplace_back(i.lower() + 1, i.upper());
+            }
+        }
+    };
+    add_set(s1 - s2);
+    add_set(s1 & s2);
+
     return out;
 }
     
