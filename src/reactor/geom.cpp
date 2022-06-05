@@ -20,7 +20,7 @@ bool Range::contains(Range const& r) const
     return lo_ <= r.lo() && hi_ >= r.hi();
 }
     
-std::vector<Range> Range::split(Range const& r, bool reverse) const
+std::list<Range> Range::split(Range const& r, bool reverse) const
 {
     auto* a = this;
     auto* b = &r;
@@ -39,7 +39,7 @@ std::vector<Range> Range::split(Range const& r, bool reverse) const
         points.emplace_back(a->hi());
     }
 
-    std::vector<Range> out;
+    std::list<Range> out;
     for(std::size_t i = 0; i < points.size() - 1; ++i) {
         auto end = i + 2 != points.size() ? points[i + 1] - 1 : points[i + 1];
         out.emplace_back(points[i], end);
@@ -73,13 +73,13 @@ bool Range3::contains(Range3 const& r) const
     return x.contains(r.x) && y.contains(r.y) && z.contains(r.z);
 }
     
-std::vector<Range3> Range3::split(Range3 const& r, bool reverse) const
+std::list<Range3> Range3::split(Range3 const& r, bool reverse) const
 {
     auto x_split = x.split(r.x, reverse);
     auto y_split = y.split(r.y, reverse);
     auto z_split = z.split(r.z, reverse);
 
-    std::vector<Range3> out;
+    std::list<Range3> out;
     for(auto const& i: x_split) {
         for(auto const& j: y_split) {
             for(auto const& k: z_split) {
