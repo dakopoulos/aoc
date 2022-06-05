@@ -46,8 +46,9 @@ void turn_on(
                 // find their overlap
                 auto ac_ic_overlap = ac->overlap_with(*ic);
                 if(ac_ic_overlap) {
+                    std::cout << "\t\toverlap: " << *ac_ic_overlap << "\n";
                     // full overlap remove input core
-                    if(ac_ic_overlap == *ic) {
+                    if(ac->contains(*ic)) {
                         std::cout << "\t\tfull overlap. removing\n";
                         ic = input_cores.erase(ic);
                     // partial overlap
@@ -56,11 +57,11 @@ void turn_on(
 
                         // split both active core & input cores
                         // add to the pool and continue testing pairs
-                        auto split_ac = ac->split(*ic, false);
+                        auto split_ac = ac->split(*ic);
                         active_cores.insert(active_cores.end(), split_ac.begin(), split_ac.end());
                         std::cout << "\t\tsplit active cores: " << split_ac << "\n";
 
-                        auto split_ic = ic->split(*ac, true);
+                        auto split_ic = ic->split(*ac);
                         input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
                         std::cout << "\t\tsplit input cores: " << split_ic << "\n";
 
@@ -125,10 +126,10 @@ void turn_off(
 
                     // if they overlap partially, split both active core & input
                     // cores, add to the pool and continue testing pairs
-                    auto split_ac = ac->split(*ic, false);
+                    auto split_ac = ac->split(*ic);
                     active_cores.insert(active_cores.end(), split_ac.begin(), split_ac.end());
 
-                    auto split_ic = ic->split(*ac, true);
+                    auto split_ic = ic->split(*ac);
                     input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
 
                     // erase old cores that are now split and reset iterators

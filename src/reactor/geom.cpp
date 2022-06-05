@@ -20,13 +20,10 @@ bool Range::contains(Range const& r) const
     return lo_ <= r.lo() && hi_ >= r.hi();
 }
     
-std::list<Range> Range::split(Range const& r, bool reverse) const
+std::list<Range> Range::split(Range const& r) const
 {
     auto* a = this;
     auto* b = &r;
-    if(reverse) {
-        std::swap(a, b);
-    }
 
     std::vector<Coord> points = {a->lo_};
     if(b->lo() > a->lo() && b->lo() < a->hi_ && b->lo() != points.back()) {
@@ -73,11 +70,11 @@ bool Range3::contains(Range3 const& r) const
     return x.contains(r.x) && y.contains(r.y) && z.contains(r.z);
 }
     
-std::list<Range3> Range3::split(Range3 const& r, bool reverse) const
+std::list<Range3> Range3::split(Range3 const& r) const
 {
-    auto x_split = x.split(r.x, reverse);
-    auto y_split = y.split(r.y, reverse);
-    auto z_split = z.split(r.z, reverse);
+    auto x_split = x.split(r.x);
+    auto y_split = y.split(r.y);
+    auto z_split = z.split(r.z);
 
     std::list<Range3> out;
     for(auto const& i: x_split) {
