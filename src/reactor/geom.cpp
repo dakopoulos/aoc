@@ -22,18 +22,18 @@ bool Range::contains(Range const& r) const
     
 std::list<Range> Range::split(Range const& r) const
 {
-    auto* a = this;
-    auto* b = &r;
+    auto& a = *this;
+    auto const& b = r;
 
-    std::vector<Coord> points = {a->lo_};
-    if(b->lo() > a->lo() && b->lo() < a->hi_ && b->lo() != points.back()) {
-        points.emplace_back(b->lo());
+    std::vector<Coord> points = {a.lo_};
+    if(b.lo() > a.lo() && b.lo() < a.hi_ && b.lo() != points.back()) {
+        points.emplace_back(b.lo());
     }
-    if(b->hi() > a->lo() && b->hi() < a->hi() && b->hi() != points.back()) {
-        points.emplace_back(b->hi());
+    if(b.hi() > a.lo() && b.hi() < a.hi() && b.hi() != points.back()) {
+        points.emplace_back(b.hi());
     }
-    if(points.size() == 1 || a->hi() != points.back()) {
-        points.emplace_back(a->hi());
+    if(points.size() == 1 || a.hi() != points.back()) {
+        points.emplace_back(a.hi());
     }
 
     std::list<Range> out;
