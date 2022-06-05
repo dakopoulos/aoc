@@ -27,10 +27,9 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
     std::cout << "\tactive cores groups: " << active_cores_ << std::endl;
 }
 
-static
-void turn_on(
+void Reactor::apply_helper(
     std::list<Range3>& input_cores,
-    std::list<Range3>& active_cores)
+    bool status)
 {
     bool split{true};
 
@@ -40,25 +39,28 @@ void turn_on(
         split = false;
     
         // for every (active_core, input_core) pair
-        for(auto ac = active_cores.begin(); ac != active_cores.end(); ++ac) {
+        for(auto ac = active_cores_.begin(); ac != active_cores_.end(); ++ac) {
             for(auto ic = input_cores.begin(); ic != input_cores.end();) {
                 std::cout << "\t\tchecking overlap: " << *ac << " with " << *ic << "\n";
                 // find their overlap
                 auto ac_ic_overlap = ac->overlap_with(*ic);
                 if(ac_ic_overlap) {
                     std::cout << "\t\toverlap: " << *ac_ic_overlap << "\n";
-                    // full overlap remove input core
-                    if(ac->contains(*ic)) {
+                    // turning on and full overlap --> remove input core
+                    if(status && ac->contains(*ic)) {
                         std::cout << "\t\tfull overlap. removing\n";
                         ic = input_cores.erase(ic);
-                    // partial overlap
+                    // turning off and exact overlap --> remove input core and active_core
+                    } else if(!status && ic->contains(*ac)) {
+                        ac = active_cores_.erase(ac);
+                    // partial overlap --> split and continue
                     } else {
                         std::cout << "\t\tsplitting\n";
 
                         // split both active core & input cores
                         // add to the pool and continue testing pairs
                         auto split_ac = ac->split(*ic);
-                        active_cores.insert(active_cores.end(), split_ac.begin(), split_ac.end());
+                        active_cores_.insert(active_cores_.end(), split_ac.begin(), split_ac.end());
                         std::cout << "\t\tsplit active cores: " << split_ac << "\n";
 
                         auto split_ic = ic->split(*ac);
@@ -67,10 +69,9 @@ void turn_on(
 
                         // erase old cores that are now split and reset iterators
                         // to restart loops 
-                        active_cores.erase(ac);
-                        
+                        active_cores_.erase(ac);
                         input_cores.erase(ic);
-                        std::cout << "total active cores: " << active_cores.size() << "\n";
+                        std::cout << "total active cores: " << active_cores() << "\n";
                         std::cout << "total input cores: " << input_cores.size() << "\n";
                         split = true;
                     }
@@ -90,61 +91,10 @@ void turn_on(
 
     // add input cores that are not erased (i.e. overlapping after all the
     // splitting)
-    for(auto const& ic: input_cores) {
-        std::cout << "\t\tadding core: " << ic << std::endl;
-        active_cores.push_back(ic);
-    }
-}
-
-static
-void turn_off(
-    std::list<Range3>& input_cores,
-    std::list<Range3>& active_cores)
-{
-    bool split{true};
-
-    while(split == true) {
-        // reset
-        split = false;
-    
-        // for every (active_core, input_core) pair
-        for(auto ac = active_cores.begin(); ac != active_cores.end();) {
-            bool erased_active_core{false};
-            for(auto ic = input_cores.begin(); ic != input_cores.end();) {
-                // find their overlap
-                auto ac_ic_overlap = ac->overlap_with(*ic);
-                if(ac_ic_overlap) {
-
-                    // if they full overlap remove input core and active_core
-                    if(ac_ic_overlap == *ic) {
-                        ic = input_cores.erase(ic);
-                        ac = active_cores.erase(ac);
-                        erased_active_core = true;
-                        continue;
-                    }
-
-                    // if they overlap partially, split both active core & input
-                    // cores, add to the pool and continue testing pairs
-                    auto split_ac = ac->split(*ic);
-                    active_cores.insert(active_cores.end(), split_ac.begin(), split_ac.end());
-
-                    auto split_ic = ic->split(*ac);
-                    input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
-
-                    // erase old cores that are now split and reset iterators
-                    // to restart loops 
-                    active_cores.erase(ac);
-                    ac = active_cores.end();
-                    input_cores.erase(ic);
-                    ic = input_cores.end();
-
-                    split = true;
-                }
-                ++ic;
-            }
-            if(erased_active_core == false) {
-                ++ac;
-            }
+    if(status) {
+        for(auto const& ic: input_cores) {
+            std::cout << "\t\tadding core: " << ic << std::endl;
+            active_cores_.push_back(ic);
         }
     }
 }
@@ -152,11 +102,7 @@ void turn_off(
 void Reactor::apply_helper(Range3 const& cores, bool status)
 {
     std::list<Range3> input_cores{cores};
-    if(status) {
-        turn_on(input_cores, active_cores_);
-    } else {
-        turn_off(input_cores, active_cores_);
-    }
+    apply_helper(input_cores, status);
 }
 
 std::size_t Reactor::active_cores() const

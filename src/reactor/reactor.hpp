@@ -39,6 +39,7 @@ private:
 
 private:
     void apply_helper(Range3 const& cores, bool status);
+    void apply_helper(std::list<Range3>& input_cores, bool status);
 };
 
 std::ostream& operator<<(std::ostream& o, Boot_step const& s);
