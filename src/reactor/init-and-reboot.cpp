@@ -10,7 +10,10 @@ using namespace aoc::reactor;
 int main(int argc, char* argv[])
 {
     // settings
-    Settings sets(argc, argv);
+    Settings sets;
+    if(!sets.init(argc, argv)) {
+        return 0;
+    }
 
     // create reactor
     Reactor reactor({{-50, 50}, {-50, 50}, {-50, 50}});

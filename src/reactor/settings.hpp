@@ -9,7 +9,9 @@ namespace aoc::reactor {
 
 struct Settings
 {
-    Settings(int argc, char* argv[])
+    Settings() = default;
+
+    bool init(int argc, char* argv[])
     {
         namespace po = boost::program_options;
         po::options_description desc("Reactor options");
@@ -34,7 +36,9 @@ struct Settings
 
         if(vm.count("help")) {
             std::cout << desc << "\n";
+            return false;
         }
+        return true;
     }
     std::vector<std::string> init_files;
     std::vector<std::string> reboot_files;
