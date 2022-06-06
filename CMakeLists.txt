@@ -6,4 +6,6 @@ add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 project(aoc CXX)
 
+find_package(Boost REQUIRED COMPONENTS program_options)
+
 add_subdirectory(src)

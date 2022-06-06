@@ -10,4 +10,5 @@ add_executable(init-and-reboot
 )
 target_link_libraries(init-and-reboot
     reactor
+    ${Boost_LIBRARIES}
 )
