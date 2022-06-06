@@ -23,57 +23,51 @@ void Reactor::apply(Boot_step const& step, Mode const& mode)
             apply_helper(*overlap, step.status);
         }
     }
-    std::cout << "\tactive cores: " << active_cores() << std::endl;
+    // std::cout << "\tactive cores: " << active_cores() << std::endl;
 }
 
 void Reactor::apply_helper(
     std::list<Range3>& input_cores,
     bool status)
 {
-    bool split{true};
-
-    while(split == true) {
-        // reset
-        split = false;
-    
-        // for every (active_core, input_core) pair
-        for(auto ac = active_cores_.begin(); ac != active_cores_.end(); ++ac) {
-            for(auto ic = input_cores.begin(); ic != input_cores.end();) {
-                // find their overlap
-                auto ac_ic_overlap = ac->overlap_with(*ic);
-                if(ac_ic_overlap) {
-                    // turning on and full overlap --> remove input core
-                    if(status && ac->contains(*ic)) {
-                        ic = input_cores.erase(ic);
-                    // turning off and exact overlap --> remove input core and active_core
-                    } else if(!status && ic->contains(*ac)) {
-                        ac = active_cores_.erase(ac);
-                    // partial overlap --> split and continue
-                    } else {
-                        // split both active core & input cores
-                        // add to the pool and continue testing pairs
-                        auto split_ac = ac->split(*ic);
-                        active_cores_.insert(active_cores_.end(), split_ac.begin(), split_ac.end());
-
-                        auto split_ic = ic->split(*ac);
-                        input_cores.insert(input_cores.end(), split_ic.begin(), split_ic.end());
-
-                        // erase old cores that are now split and reset iterators
-                        // to restart loops 
-                        active_cores_.erase(ac);
-                        input_cores.erase(ic);
-                        split = true;
-                    }
+    // for every (active_core, input_core) pair
+    for(auto ac = active_cores_.begin(); ac != active_cores_.end();) {
+        bool ac_erased{false};
+        for(auto ic = input_cores.begin(); ic != input_cores.end();) {
+            // find their overlap
+            auto ac_ic_overlap = ac->overlap_with(*ic);
+            if(ac_ic_overlap) {
+                // turning on and full overlap --> remove input core
+                if(status && ac->contains(*ic)) {
+                    ic = input_cores.erase(ic);
+                // turning off and exact overlap --> remove input core and active_core
+                } else if(!status && ic->contains(*ac)) {
+                    ac = active_cores_.erase(ac);
+                    ac_erased = true;
+                // partial overlap --> split and continue
                 } else {
-                    ++ic;
+                    // split both active core & input cores
+                    // add to the pool and continue testing pairs
+                    auto ac_split = ac->split(*ic);
+                    active_cores_.insert(active_cores_.end(), ac_split.begin(),
+                        ac_split.end());
+
+                    auto ic_split = ic->split(*ac);
+                    input_cores.insert(input_cores.end(), ic_split.begin(),
+                        ic_split.end());
+
+                    // erase old cores that are now split and reset iterators
+                    // to restart loops 
+                    ic = input_cores.erase(ic);
+                    ac = active_cores_.erase(ac);
+                    ac_erased = true;
                 }
-                if(split == true) {
-                    break;
-                }
+            } else {
+                ++ic;
             }
-            if(split == true) {
-                break;
-            }
+        }
+        if(!ac_erased) {
+            ++ac;
         }
     }
 
