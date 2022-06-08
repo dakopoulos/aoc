@@ -22,7 +22,7 @@ public:
     }
 
     bool operator==(Range const&) const = default;
-    Coord size() const { return hi_ - lo_ + 1; }
+    double size() const { return hi_ - lo_ + 1; }
     std::optional<Range> overlap_with(Range const& r) const;
     bool contains(Range const& r) const;
     Coord lo() const noexcept { return lo_; }
@@ -43,7 +43,7 @@ struct Range3
     Range3(Range const& x_, Range const& y_, Range const& z_)
         : x(x_), y(y_), z(z_) {}
     bool operator==(Range3 const&) const = default;
-    std::size_t size() const { return x.size() * y.size() * z.size(); }
+    double size() const { return x.size() * y.size() * z.size(); }
     std::optional<Range3> overlap_with(Range3 const& r) const;
     bool contains(Range3 const&) const;
     std::list<Range3> split(Range3 const&) const;
