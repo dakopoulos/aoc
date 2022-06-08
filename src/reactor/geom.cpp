@@ -7,8 +7,8 @@ namespace aoc::reactor {
     
 std::optional<Range> Range::overlap_with(Range const& r) const
 {
-    Coord out_lo = std::max(lo_, r.lo());
-    Coord out_hi = std::min(hi_, r.hi());
+    auto const out_lo = std::max(lo_, r.lo());
+    auto const out_hi = std::min(hi_, r.hi());
 
     std::optional<Range> out;
     if(out_lo <= out_hi) {
@@ -24,8 +24,8 @@ bool Range::contains(Range const& r) const
     
 std::list<Range> Range::split(Range const& r) const
 {
-    using Interval_set = boost::icl::interval_set<int>;
-    using Interval = boost::icl::discrete_interval<int>;
+    using Interval_set = boost::icl::interval_set<Coord>;
+    using Interval = boost::icl::discrete_interval<Coord>;
 
     auto make_set = [](auto l, auto h) {
         Interval_set s;
@@ -70,11 +70,6 @@ std::optional<Range3> Range3::overlap_with(Range3 const& r) const
         }
     }
     return out;
-}
-    
-bool Range3::contains(Point const& p) const
-{
-    return x.contains(p.x) && y.contains(p.y) && z.contains(p.z);
 }
     
 bool Range3::contains(Range3 const& r) const

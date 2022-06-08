@@ -9,33 +9,6 @@
 
 namespace aoc::reactor {
 
-/// 3D point
-///
-struct Point
-{
-    Point(Coord x_, Coord y_, Coord z_) : x(x_), y(y_), z(z_) {}
-    bool operator==(Point const&) const = default;
-    Coord x{0};
-    Coord y{0};
-    Coord z{0};
-};
-
-
-/// Hashing of Point
-///
-struct Point_hash
-{
-    std::size_t operator()(Point const& p) const
-    {
-        std::size_t seed{0};
-        boost::hash_combine(seed, p.x);
-        boost::hash_combine(seed, p.y);
-        boost::hash_combine(seed, p.z);
-        return seed;
-    }
-};
-
-
 /// 1D range of integers
 ///
 class Range
@@ -52,7 +25,6 @@ public:
     Coord size() const { return hi_ - lo_ + 1; }
     std::optional<Range> overlap_with(Range const& r) const;
     bool contains(Range const& r) const;
-    bool contains(Coord i) const { return i >= lo_ && i <= hi_; }
     Coord lo() const noexcept { return lo_; }
     Coord hi() const noexcept { return hi_; }
     std::list<Range> split(Range const&) const;
@@ -74,7 +46,6 @@ struct Range3
     std::size_t size() const { return x.size() * y.size() * z.size(); }
     std::optional<Range3> overlap_with(Range3 const& r) const;
     bool contains(Range3 const&) const;
-    bool contains(Point const& p) const;
     std::list<Range3> split(Range3 const&) const;
     
     Range x;
