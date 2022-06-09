@@ -93,9 +93,9 @@ void Reactor::apply_helper(Range3 const& cores, bool status)
     apply_helper(input_cores, status);
 }
 
-std::size_t Reactor::active_cores() const
+Size Reactor::active_cores() const
 {
-    std::size_t total{0};
+    Size total{0};
     for(auto const& i: active_cores_) {
         total += i.size();
     }
